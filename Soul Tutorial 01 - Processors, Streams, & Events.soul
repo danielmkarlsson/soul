@@ -1,0 +1,32 @@
+// https://www.youtube.com/watch?v=XKmfYM-PG4Y
+
+/*
+comment
+block
+*/
+
+// comment line
+
+processor Gain
+{
+    input stream float audioIn;
+    output stream float audioOut;
+
+    input event float gainIn [[ min: -40, max: 0, init: -6, step: 0.01, name: "gain", unit: "db" ]];
+
+    float gainValue = 0.0f;
+
+    event gainIn (float incomingValue)
+    {
+        gainValue = incomingValue;
+    }
+
+    void run ()
+    {
+        loop
+        {
+            audioOut << audioIn * soul::dBtoGain (gainValue);
+            advance ();
+        }
+    }
+}
