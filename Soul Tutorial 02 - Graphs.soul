@@ -1,0 +1,35 @@
+graph TutorialGraph [[main]]
+{
+    input stream float audioIn;
+    output stream float audioOut;   
+
+    input stream float gainDb [[ min: -60, max: 0, init: -6, step: 0.1, name: "gain", unit: "db", slewRate: 400.0 ]];
+
+    let g = Gain;
+
+    connection
+    {
+        audioIn -> g.audioIn;
+        g.audioOut -> audioOut;
+
+        gainDb -> g.gainDb;
+    }
+}
+
+processor Gain
+{
+    input stream float audioIn;
+    output stream float audioOut;
+
+    input stream float gainDb;
+
+    void run ()
+    {
+        loop
+        {
+            let gain = soul::dBtoGain (gainDb);
+
+            audioOut << audioIn * gain;
+            advance ();
+        }
+    }
