@@ -1,0 +1,34 @@
+graph TopLevel [[main]]
+{
+    input stream float audioIn;
+    output stream float audioOut;   
+
+    let delay = Delay (100000, 10000);
+
+    connection
+    {
+        audioIn -> delay.audioIn;
+        delay.audioOut -> audioOut;
+    }
+}
+
+processor Delay (const int bufferLength, const int delayInSamples)
+{
+    input stream float audioIn;
+    output stream float audioOut;
+
+    float[bufferLength] buffer;
+
+    wrap<bufferLength> writeIndex, readIndex;
+    void run ()
+    {
+        loop
+        {
+            buffer[writeIndex] = audioIn;
+            audioOut << buffer[readIndex] + audioIn / 2.0f;
+            writeIndex++;
+            readIndex = wrap<bufferLength> (writeIndex - delayInSamples);
+            advance ();
+        }
+    }
+}
